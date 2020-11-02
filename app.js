@@ -15,7 +15,7 @@ const server = new ApolloServer({
 server.applyMiddleware({ app });
 
 mongoose
-  .connect('mongodb://akrom:akrom1996@ds135179.mlab.com:35179/books')
+  .connect('mongodb://akrom1996:akrom1996@ds235768.mlab.com:35768/ecommerce')
   .then(() => {
     console.log('conneted to database');
     app.listen(4000, () => {

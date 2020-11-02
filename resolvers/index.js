@@ -1,37 +1,38 @@
-const Book = require("../models/book");
-const Author = require("../models/author");
+const Product = require("../models/product");
+const Owner = require("../models/owner");
 module.exports = {
   Query: {
-    book: (parent, { id }) => Book.findById(id),
-    author: (parent, { id }) => Author.findById(id),
-    books: () => Book.find({}),
-    authors: () => Author.find({})
+    product: (parent, { id }) => Product.findById(id),
+    owner: (parent, { id }) => Owner.findById(id),
+    products: () => Product.find({}),
+    owners: () => Owner.find({})
   },
   Mutation: {
-    addAuthor: (parent, { name, age }) => {
-      const author = new Author({
+    addOwner: (parent, { name, phone, age }) => {
+      const ownerId = new Owner({
         name,
+        phone,
         age
       });
-      return author.save();
+      return ownerId.save();
     },
-    addBook: (parent, { name, genre, authorId }) => {
-      const book = new Book({
+    addProduct: (parent, { name, category, ownerId }) => {
+      const product = new Product({
         name,
-        genre,
-        authorId
+        category,
+        ownerId
       });
-      return book.save();
+      return product.save();
     }
   },
-  Author: {
-    books: parent => {
-      return Book.find({ authorId: parent.id });
+  Owner: {
+    products: parent => {
+      return Product.find({ ownerId: parent.id });
     }
   },
-  Book: {
-    author: parent => {
-      return Author.findById(parent.authorId);
+  Product: {
+    ownerId: parent => {
+      return Owner.findById(parent.ownerIdId);
     }
   }
 };
