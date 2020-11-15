@@ -12,6 +12,8 @@ module.exports = gql`
   type Mutation {
     createStore(input: CreateStoreInput!): Store!
     createProduct(input: CreateProductInput!): Product!
+    signup(input: SignupInput!): User!
+    login(input: LoginInput!): Token!
   }
 
   # response types
@@ -33,7 +35,19 @@ module.exports = gql`
     address: String
     products: [Product!]!
   }
-
+  type User {
+    _id: ID
+    email: String!
+    password: String!
+    firstName: String!
+    lastName: String!
+    address: String
+    phone: String
+  }
+  type Token {
+    token: String!
+    userId: ID!
+  }
   # input types
   input CreateStoreInput {
     email: String!
@@ -48,5 +62,17 @@ module.exports = gql`
     price: Int!
     imageUrl: String!
     description: String!
+  }
+  input SignupInput {
+    email: String!
+    password: String!
+    firstName: String!
+    lastName: String!
+    address: String
+    phone: String
+  }
+  input LoginInput {
+    email: String!
+    password: String!
   }
 `;
