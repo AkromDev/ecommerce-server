@@ -1,38 +1,55 @@
 const Product = require("../models/product");
-const Owner = require("../models/owner");
+const Store = require("../models/store");
+
 module.exports = {
   Query: {
-    product: (parent, { id }) => Product.findById(id),
-    owner: (parent, { id }) => Owner.findById(id),
     products: () => Product.find({}),
-    owners: () => Owner.find({})
+    product: (parent, { _id }) => Product.findById(_id),
+    stores: () => Store.find({}),
+    store: (parent, { _id }) => Store.findById(_id),
   },
   Mutation: {
-    addOwner: (parent, { name, phone, age }) => {
-      const ownerId = new Owner({
+    createStore: (parent, { 
+      email,
+      password,
+      name,
+      phone,
+      address,
+    }) => {
+      const store = new Store({
+        email,
+        password,
         name,
         phone,
-        age
+        address,
       });
-      return ownerId.save();
+      return store.save();
     },
-    addProduct: (parent, { name, category, ownerId }) => {
+    createProduct: (parent, { 
+      storeId,
+      title,
+      price,
+      imageUrl,
+      description,
+     }) => {
       const product = new Product({
-        name,
-        category,
-        ownerId
+        storeId,
+        title,
+        price,
+        imageUrl,
+        description,
       });
       return product.save();
     }
   },
-  Owner: {
+  Store: {
     products: parent => {
-      return Product.find({ ownerId: parent.id });
+      return Product.find({ storeId: parent._id });
     }
   },
   Product: {
-    ownerId: parent => {
-      return Owner.findById(parent.ownerIdId);
+    store: parent => {
+      return Store.findById(parent.storeId);
     }
   }
 };
