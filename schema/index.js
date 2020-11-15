@@ -1,27 +1,43 @@
 const { gql } = require("apollo-server-express");
 module.exports = gql`
   type Query {
-    product(id: ID!): Product!
     products: [Product!]!
-    owner(id: ID!): Owner!
-    owners: [Owner!]!
+    product(_id: ID!): Product!
+    stores: [Store!]!
+    store(_id: ID!): Store!
   }
   type Mutation {
-    addOwner(name: String!, phone: String!, age: Int!): Owner!
-    addProduct(name: String!, category: String!, ownerId: ID!): Product!
-  }
-  type Owner {
-    _id: ID!
-    name: String!
-    age: Int!
-    phone: String!
-    products: [Product!]!
+    createStore(
+      email: String!
+      password: String!
+      name: String!
+      phone: String!
+      address: String
+    ): Store!
+    createProduct(
+      storeId:ID!
+      title:String!
+      price:Int!
+      imageUrl:String!
+      description:String!
+    ): Product!
   }
   type Product {
+    _id:ID!
+    storeId:ID!
+    store: Store!
+    title:String!
+    price:Int!
+    description:String!
+    imageUrl:String!
+  }
+  type Store{
     _id: ID!
+    email: String!
+    password: String!
     name: String!
-    category: String!
-    ownerId: ID!
-    owner: Owner!
+    phone: String!
+    address: String
+    products: [Product!]!
   }
 `;
