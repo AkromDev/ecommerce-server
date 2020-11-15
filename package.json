@@ -4,7 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start":"node app.js",
+    "dev":"nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -15,6 +17,7 @@
     "mongoose": "^5.10.2"
   },
   "devDependencies": {
-    "eslint": "^7.7.0"
+    "eslint": "^7.7.0",
+    "nodemon": "^2.0.6"
   }
 }

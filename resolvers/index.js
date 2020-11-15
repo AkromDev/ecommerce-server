@@ -1,5 +1,5 @@
-const Product = require("../models/product");
-const Store = require("../models/store");
+const Product = require('../models/product');
+const Store = require('../models/store');
 
 module.exports = {
   Query: {
@@ -9,13 +9,8 @@ module.exports = {
     store: (parent, { _id }) => Store.findById(_id),
   },
   Mutation: {
-    createStore: (parent, { 
-      email,
-      password,
-      name,
-      phone,
-      address,
-    }) => {
+    createStore: (parent, { input }) => {
+      const { email, password, name, phone, address } = input;
       const store = new Store({
         email,
         password,
@@ -25,13 +20,8 @@ module.exports = {
       });
       return store.save();
     },
-    createProduct: (parent, { 
-      storeId,
-      title,
-      price,
-      imageUrl,
-      description,
-     }) => {
+    createProduct: (parent, { input }) => {
+      const { storeId, title, price, imageUrl, description } = input;
       const product = new Product({
         storeId,
         title,
@@ -40,16 +30,16 @@ module.exports = {
         description,
       });
       return product.save();
-    }
+    },
   },
   Store: {
-    products: parent => {
+    products: (parent) => {
       return Product.find({ storeId: parent._id });
-    }
+    },
   },
   Product: {
-    store: parent => {
+    store: (parent) => {
       return Store.findById(parent.storeId);
-    }
-  }
+    },
+  },
 };
