@@ -4,7 +4,9 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node app.js",
+    "dev": "nodemon app.js"
   },
   "author": "",
   "license": "ISC",
@@ -12,9 +14,13 @@
     "apollo-server-express": "^2.17.0",
     "express": "^4.17.1",
     "graphql": "^15.3.0",
-    "mongoose": "^5.10.2"
+    "mongoose": "^5.10.2",
+    "bcryptjs": "^2.4.3",
+    "jsonwebtoken": "^8.3.0",
+    "validator": "^10.8.0"
   },
   "devDependencies": {
-    "eslint": "^7.7.0"
+    "eslint": "^7.7.0",
+    "nodemon": "^2.0.6"
   }
 }
