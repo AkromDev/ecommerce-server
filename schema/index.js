@@ -15,7 +15,8 @@ module.exports = gql`
     createProduct(input: CreateProductInput!): Product!
     signup(input: SignupInput!): RegularResponse!
     resendConfirmation(input: EmailInput!): RegularResponse!
-    sendResetPasswordOTP(input: EmailInput!): RegularResponse!
+    sendResetPasswordOTP(input: EmailInput!): SendResetPasswordOTPRes!
+    resetPassword(input: ResetPasswordInput!): RegularResponse!
     login(input: LoginInput!): Token!
   }
 
@@ -53,6 +54,11 @@ module.exports = gql`
     success: Boolean!
     message: String!
   }
+  type SendResetPasswordOTPRes {
+    success: Boolean!
+    message: String!
+    userId: ID!
+  }
   type Token {
     token: String!
     userId: ID!
@@ -86,5 +92,10 @@ module.exports = gql`
   input LoginInput {
     email: String!
     password: String!
+  }
+  input ResetPasswordInput {
+    password: String!
+    otp: Int!
+    userId: ID!
   }
 `;

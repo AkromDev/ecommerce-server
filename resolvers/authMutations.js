@@ -189,6 +189,29 @@ const authMutations = {
     return {
       success: true,
       message: `OTP code is sent to your email at ${email}`,
+      userId: user._id.toString(),
+    };
+  },
+  resetPassword: async (_, { input }) => {
+    const { password, userId, otp } = input;
+    const user = await User.findOne({
+      _id: userId,
+      passwordResetOTP: otp,
+      passwordResetExpires: { $gt: Date.now() },
+    });
+    if (!user) {
+      throwError({
+        message: 'OTP code is invalid or expired',
+      });
+    }
+    const hashedPassword = await bcrypt.hash(password, 12);
+    user.password = hashedPassword;
+    user.passwordResetOTP = null;
+    user.passwordResetExpires = null;
+    user.save();
+    return {
+      success: true,
+      message: 'You have successfully reset your password.',
     };
   },
   login: async function (_, { input }) {
