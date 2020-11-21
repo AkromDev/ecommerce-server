@@ -1,8 +1,12 @@
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config();
+}
+
 const express = require('express');
 const mongoose = require('mongoose');
 const { ApolloServer } = require('apollo-server-express');
 const auth = require('./middleware/auth');
-
+const userController = require('./controllers/userController');
 const typeDefs = require('./schema');
 const resolvers = require('./resolvers');
 
@@ -18,6 +22,7 @@ app.use((req, res, next) => {
 });
 
 app.use(auth);
+app.get('/email-confirmation/:token', userController.confirmationPost);
 
 const server = new ApolloServer({
   typeDefs,
@@ -42,11 +47,9 @@ const server = new ApolloServer({
 
 server.applyMiddleware({ app });
 
-mongoose
-  .connect('mongodb://akrom1996:akrom1996@ds235768.mlab.com:35768/ecommerce')
-  .then(() => {
-    console.log('conneted to database');
-    app.listen(4000, () => {
-      console.log('listening for requests on port 4000');
-    });
+mongoose.connect(process.env.DB_URL).then(() => {
+  console.log('conneted to database');
+  app.listen(4000, () => {
+    console.log('listening for requests on port 4000');
   });
+});
