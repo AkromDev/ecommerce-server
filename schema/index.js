@@ -13,8 +13,9 @@ module.exports = gql`
   type Mutation {
     createStore(input: CreateStoreInput!): Store!
     createProduct(input: CreateProductInput!): Product!
-    signup(input: SignupInput!): SignupRes!
-    resendConfirmation(input: ResendConfirmationInput!): SignupRes!
+    signup(input: SignupInput!): RegularResponse!
+    resendConfirmation(input: EmailInput!): RegularResponse!
+    sendResetPasswordOTP(input: EmailInput!): RegularResponse!
     login(input: LoginInput!): Token!
   }
 
@@ -48,10 +49,9 @@ module.exports = gql`
     address: String
     phone: String
   }
-  type SignupRes {
+  type RegularResponse {
     success: Boolean!
     message: String!
-    userId: ID!
   }
   type Token {
     token: String!
@@ -80,7 +80,7 @@ module.exports = gql`
     address: String
     phone: String
   }
-  input ResendConfirmationInput {
+  input EmailInput {
     email: String!
   }
   input LoginInput {

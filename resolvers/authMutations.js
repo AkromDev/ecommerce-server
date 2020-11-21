@@ -4,8 +4,11 @@ const validator = require('validator');
 const crypto = require('crypto');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
+const handleRequest = require('../utils/handleRequest');
+const throwError = require('../utils/throwError');
 const Token = require('../models/token');
 const User = require('../models/user');
+const codes = require('../constants/httpCodes');
 
 const transporter = nodemailer.createTransport(
   sendgridTransport({
@@ -14,7 +17,9 @@ const transporter = nodemailer.createTransport(
     },
   })
 );
-
+const generateCryptoToken = () => {
+  return crypto.randomBytes(16).toString('hex');
+};
 const authMutations = {
   signup: async function (_, { input }) {
     const { email, password, firstName, lastName, address, phone } = input;
@@ -36,17 +41,42 @@ const authMutations = {
     }
 
     if (errors.length > 0) {
-      const error = new Error('Invalid input.');
-      error.data = errors;
-      error.code = 422;
-      throw error;
+      throwError({
+        message: 'Invalid input',
+        code: codes.INVALID_INPUT,
+        errors,
+      });
     }
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      const error = new Error('User exists already!');
-      throw error;
+      throwError({
+        message: 'User exists already!',
+        code: codes.INVALID_INPUT,
+      });
     }
+
     const hashedPw = await bcrypt.hash(password, 12);
+    const token = generateCryptoToken();
+
+    const [, emailError] = await handleRequest(
+      transporter.sendMail({
+        to: email,
+        from: 'akromsprinter@gmail.com',
+        subject: 'Account Verification Token',
+        html: `
+        <div>Please verify your account by clicking the link below</div>
+        <div><a href="http://localhost:4000/email-confirmation/${token}">Confirm email</a></div>
+        `,
+      })
+    );
+    if (emailError) {
+      throwError({
+        message: 'Error occured while sending an email',
+        code: codes.INTERNAL_SERVER_ERROR,
+      });
+    }
+
+    // only save to db if email sending is successful
     const user = new User({
       email,
       firstName,
@@ -55,111 +85,140 @@ const authMutations = {
       phone,
       password: hashedPw,
     });
-    const token = new Token({
+
+    const newToken = new Token({
       userId: user._id,
-      token: crypto.randomBytes(16).toString('hex'),
+      token: token,
     });
-    try {
-      await transporter.sendMail({
-        to: email,
-        from: 'akromsprinter@gmail.com',
-        subject: 'Account Verification Token',
-        html: `
-              <div>Please verify your account by clicking the link below</div>
-              <div><a href="http://localhost:4000/email-confirmation/${token.token}">Confirm email</a></div>
-            `,
-      });
-    } catch (err) {
-      const error = new Error('Error occured while sending an email');
-      error.code = 500;
-      throw error;
-    }
-    // only save to db if email sending is successful
 
     await user.save();
-    await token.save();
+    await newToken.save();
+
     return {
       success: true,
       message: `Verification email is sent to ${email}`,
-      userId: user._id.toString(),
     };
   },
   resendConfirmation: async function (_, { input }) {
     const { email } = input;
     if (!validator.isEmail(email)) {
-      const error = new Error('Email is invalid');
-      error.code = 422;
-      throw error;
+      throwError({
+        message: 'Email is invalid',
+        code: codes.INVALID_INPUT,
+      });
     }
     const user = await User.findOne({ email });
     if (!user) {
-      const error = new Error('User is not found with that email');
-      error.code = 422;
-      throw error;
+      throwError({
+        message: 'User is not found with that email',
+        code: codes.INVALID_INPUT,
+      });
     }
     if (user.isVerified) {
-      const error = new Error(
-        'This account has already been verified. Please log in.'
-      );
-      error.code = 400;
-      throw error;
+      throwError({
+        message: 'This account has already been verified. Please log in.',
+        code: codes.BAD_REQUEST,
+      });
     }
 
     // Create a verification token, save it, and send email
-    var token = new Token({
-      userId: user._id,
-      token: crypto.randomBytes(16).toString('hex'),
-    });
-
-    try {
-      await transporter.sendMail({
+    const token = generateCryptoToken();
+    const [, emailError] = await handleRequest(
+      transporter.sendMail({
         to: email,
         from: 'akromsprinter@gmail.com',
         subject: 'Account Verification Token',
 
         html: `
-              <div>Please verify your account by clicking the link below</div>
-              <div><a href="http://localhost:4000/email-confirmation/${token.token}">Confirm email</a></div>          `,
-      });
-    } catch (err) {
-      const error = new Error('Error occured while sending an email');
-      error.code = 500;
-      throw error;
-    }
-    // only save to db if email sending is successful
+        <div>Please verify your account by clicking the link below</div>
+        <div><a href="http://localhost:4000/email-confirmation/${token}">Confirm email</a></div>          `,
+      })
+    );
 
-    await token.save();
+    if (emailError) {
+      throwError({
+        message: 'Error occured while sending an email',
+      });
+    }
+    var newToken = new Token({
+      userId: user._id,
+      token,
+    });
+
+    await newToken.save();
+
     return {
       success: true,
       message: `Verification email is sent to ${email}`,
-      userId: user._id.toString(),
+    };
+  },
+  sendResetPasswordOTP: async (_, { input }) => {
+    const { email } = input;
+    const [user, userError] = await handleRequest(User.findOne({ email }));
+    if (!user) {
+      throwError({
+        message: 'No account with that email found.',
+        code: codes.INVALID_INPUT,
+      });
+    }
+    if (userError) {
+      throwError({});
+    }
+    const otp = Math.floor(100000 + Math.random() * 900000);
+    const [, emailError] = await handleRequest(
+      transporter.sendMail({
+        to: email,
+        from: 'akromsprinter@gmail.com',
+        subject: 'Password reset request',
+        html: `
+          <p>You requested a password reset</p>
+          <p>Here is 6-digit code: ${otp}.</p>
+          `,
+      })
+    );
+    if (emailError) {
+      throwError({
+        message: 'Error occured while sending an email',
+      });
+    }
+
+    user.passwordResetOTP = otp;
+    user.passwordResetExpires = Date.now() + 3600000;
+    await user.save();
+
+    return {
+      success: true,
+      message: `OTP code is sent to your email at ${email}`,
     };
   },
   login: async function (_, { input }) {
     const { email, password } = input;
     const user = await User.findOne({ email });
     if (!user) {
-      const error = new Error('User not found.');
-      error.code = 401;
-      throw error;
+      throwError({
+        message: 'User not found.',
+        code: codes.INVALID_INPUT,
+      });
     }
     if (!user.isVerified) {
-      const error = new Error('Your account has not been verified.');
-      error.code = 401;
-      throw error;
+      throwError({
+        message: 'Your account has not been verified.',
+        code: codes.UNAUTHORIZED,
+      });
     }
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
-      const error = new Error('Password is incorrect.');
-      error.code = 401;
-      throw error;
+      throwError({
+        message: 'Password is incorrect.',
+        code: codes.UNAUTHORIZED,
+      });
     }
     const token = jwt.sign(
       {
         userId: user._id.toString(),
         email: user.email,
       },
-      'tokensecretdev',
+      process.env.TOKEN_SECRET,
       { expiresIn: '12h' }
     );
     return { token: token, userId: user._id.toString() };

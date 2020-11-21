@@ -29,7 +29,7 @@ const userSchema = new Schema({
   },
   roles: [{ type: 'String' }],
   isVerified: { type: Boolean, default: false },
-  passwordResetToken: String,
+  passwordResetOTP: Number,
   passwordResetExpires: Date,
   cart: {
     items: [
