@@ -9,6 +9,7 @@ const throwError = require('../utils/throwError');
 const Token = require('../models/token');
 const User = require('../models/user');
 const codes = require('../constants/httpCodes');
+const userRoles = require('../constants/userRoles');
 
 const transporter = nodemailer.createTransport(
   sendgridTransport({
@@ -84,6 +85,7 @@ const authMutations = {
       address,
       phone,
       password: hashedPw,
+      roles: [userRoles.USER]
     });
 
     const newToken = new Token({

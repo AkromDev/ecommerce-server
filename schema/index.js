@@ -4,15 +4,18 @@ module.exports = gql`
   type Query {
     products: [Product!]!
     product(_id: ID!): Product!
+    myOrders: [Order!]!
+    myOrder(orderId: ID!): Order!
     stores: [Store!]!
     store(_id: ID!): Store!
-    user(_id: ID!): User!
+    me: User!
   }
 
   # mutations
   type Mutation {
     createStore(input: CreateStoreInput!): Store!
     createProduct(input: CreateProductInput!): Product!
+    createOrder(input: CreateOrderInput!): Order!
     signup(input: SignupInput!): RegularResponse!
     resendConfirmation(input: EmailInput!): RegularResponse!
     sendResetPasswordOTP(input: EmailInput!): SendResetPasswordOTPRes!
@@ -42,7 +45,6 @@ module.exports = gql`
   type User {
     _id: ID
     email: String!
-    password: String!
     firstName: String!
     lastName: String!
     isVerified: Boolean!
@@ -62,6 +64,16 @@ module.exports = gql`
   type Token {
     token: String!
     userId: ID!
+  }
+  type Order {
+    _id: ID!
+    userId: ID!
+    user: User!
+    productsOrdered: [ProductOrdered!]!
+  }
+  type ProductOrdered{
+    quantity: Int!
+    product: Product!
   }
   # input types
   input CreateStoreInput {
@@ -97,5 +109,14 @@ module.exports = gql`
     password: String!
     otp: Int!
     userId: ID!
+  }
+  input CreateOrderInput {
+    userId: ID!
+    products: [OrderProduct!]!
+  }
+
+  input OrderProduct {
+    productId: ID!
+    quantity: Int!
   }
 `;
