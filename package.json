@@ -12,14 +12,18 @@
   "license": "ISC",
   "dependencies": {
     "apollo-server-express": "^2.17.0",
+    "bcryptjs": "^2.4.3",
+    "crypto": "^1.0.1",
     "express": "^4.17.1",
     "graphql": "^15.3.0",
-    "mongoose": "^5.10.2",
-    "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^8.3.0",
+    "mongoose": "^5.10.2",
+    "nodemailer": "^6.4.16",
+    "nodemailer-sendgrid-transport": "^0.2.0",
     "validator": "^10.8.0"
   },
   "devDependencies": {
+    "dotenv": "^8.2.0",
     "eslint": "^7.7.0",
     "nodemon": "^2.0.6"
   }

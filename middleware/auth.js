@@ -10,7 +10,7 @@ module.exports = (req, res, next) => {
   const token = authHeader;
   let decodedToken;
   try {
-    decodedToken = jwt.verify(token, 'tokensecretdev');
+    decodedToken = jwt.verify(token, process.env.TOKEN_SECRET);
   } catch (err) {
     req.isAuth = false;
     return next();
