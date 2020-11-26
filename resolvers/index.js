@@ -4,6 +4,9 @@ const User = require('../models/user');
 const Order = require('../models/order');
 
 const authMutations = require('./authMutations');
+const { checkIfAdmin, checkAuth } = require('../utils/authValidation');
+const throwError = require('../utils/throwError');
+const httpCodes = require('../constants/httpCodes');
 
 module.exports = {
   Query: {
@@ -16,18 +19,14 @@ module.exports = {
       return Store.findById(_id);
     },
     myOrders: async (parent, _, { req }) => {
-      const {userId, isAuth} = req
-      if (!isAuth || !userId) {
-        throw new Error('Not authenticated!');
-      }
+      checkAuth(req)
+      const {userId} = req
       const orders = await Order.find({ userId });
       return orders || []
     },
     myOrder: async (_, { orderId }, {req}) => {
-      const {userId, isAuth} = req
-      if (!isAuth || !userId) {
-        throw new Error('Not authenticated!');
-      }
+      checkAuth(req)
+      const {userId} = req
       const order = await Order.findOne({_id: orderId, userId});
       if(!order){
         throw new Error('Order is not found with that order id');
@@ -35,40 +34,42 @@ module.exports = {
       return order
     },
     me: (_, __, {req}) => {
-      const {userId, isAuth} = req
-      if (!isAuth || !userId) {
-        throw new Error('Not authenticated!');
-      }
+      checkAuth(req)
+      const {userId} = req
       return User.findById(userId)
     },
   },
   Mutation: {
-    createStore: (parent, { input }) => {
+    createStore: async(parent, { input }, {req}) => {
+      await checkIfAdmin(req)
       const { email, password, name, phone, address } = input;
-      const store = new Store({
+      const store = await Store.findOne({email})
+      if(store){
+        throwError({
+          message:'Another store already exists with this email',
+          code: httpCodes.INVALID_INPUT
+        })
+      }
+      const newStore = new Store({
         email,
         password,
         name,
         phone,
         address,
       });
-      return store.save();
+      return newStore.save();
     },
     createOrder: (parent, { input }, { req }) => {
-      if (!req.isAuth) {
-        throw new Error('Not authenticated!');
-      }
-      const { userId, products = [] } = input;
+      checkAuth(req)
+      const { products = [] } = input;
       const order = new Order({
-        userId,
+        userId: req.userId,
         products,
       });
       return order.save();
     },
-    createProduct: (parent, { input }, { req }) => {
-      if (!req.isAuth) {
-        throw new Error('Not authenticated!');
-      }
+    createProduct: async (parent, { input }, { req }) => {
+      await checkIfAdmin(req)
       const { storeId, title, price, imageUrl, description } = input;
       const product = new Product({
         storeId,

@@ -111,7 +111,6 @@ module.exports = gql`
     userId: ID!
   }
   input CreateOrderInput {
-    userId: ID!
     products: [OrderProduct!]!
   }
 

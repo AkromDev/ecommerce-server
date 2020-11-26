@@ -27,7 +27,7 @@ const userSchema = new Schema({
     type: String,
     required: false,
   },
-  roles: [{ type: 'String', enum: ['ADMIN','EMPLOYEE','USER'], required: true}],
+  roles: [{ type: 'String', enum: ['ADMIN','EMPLOYEE','USER'], default: ['USER']}],
   isVerified: { type: Boolean, default: false },
   passwordResetOTP: Number,
   passwordResetExpires: Date,
