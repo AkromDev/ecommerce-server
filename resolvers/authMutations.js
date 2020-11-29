@@ -83,7 +83,7 @@ const authMutations = {
       lastName,
       address,
       phone,
-      password: hashedPw,
+      password: hashedPw
     });
 
     const newToken = new Token({

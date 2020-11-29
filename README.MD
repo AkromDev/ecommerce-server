@@ -1,5 +1,4 @@
-# Queries
-
+# Public queries
 ```graphql
 query products {
   products {
@@ -43,10 +42,108 @@ query store {
     }
   }
 }
+
+```
+# Protected queries
+
+```graphql 
+
+query me{
+  me{
+    _id
+    isVerified
+    roles
+    firstName
+    lastName
+  }
+}
+
+query myOrders{
+  myOrders{
+    _id
+    user{
+      firstName
+      lastName
+    }
+   productsOrdered{
+    quantity
+    product{
+      _id
+      title
+      imageUrl
+    }
+  }
+  }
+}
+query myOrder{
+  myOrder(orderId:"5fbfd095c61bace0143912c0"){
+    _id
+    productsOrdered{
+      quantity
+      product{
+        title
+        imageUrl
+      }
+    }
+  }
+}
 ```
 
-# Mutations
 
+# Auth mutations
+
+```graphql
+
+mutation signup {
+  signup(
+    input: {
+      email: "akrom2@test.com"
+      password: "akrom2"
+      firstName: "Akrom2"
+      lastName: "Tester2"
+    }
+  ) {
+    _id
+    firstName
+    lastName
+    address
+  }
+}
+
+# mutation to resend confirmation email
+mutation resendConfirmation{
+  resendConfirmation(input:{email:"kejek4196@opetron.com"}){
+    message
+  }
+}
+
+# user need to confirm email via confirmation email to be able to login
+mutation login {
+  login(input: { email: "akrom@test.com", password: "akrom" }) {
+    token
+    userId
+  }
+}
+
+# Mutation to send 6-digit OTP to an email. 
+mutation sendResetPasswordOTP{
+  sendResetPasswordOTP(input:{email:"vapeti2463@opetron.com"}){
+    message
+    success
+    userId
+  }
+}
+
+# Mutation to reset user password after recieving OTP
+mutation resetPassword{
+  resetPassword(input:{userId:"5fbb5aafee3fb87c9230d3e9",password: "akromnew", otp: 647609}){
+    message
+    success
+  }
+}
+```
+
+## Admin mutations
 ```graphql
 mutation createStore {
   createStore(
@@ -81,26 +178,19 @@ mutation createProduct {
     description
   }
 }
-
-mutation signup {
-  signup(
-    input: {
-      email: "akrom2@test.com"
-      password: "akrom2"
-      firstName: "Akrom2"
-      lastName: "Tester2"
-    }
+``` 
+## User mutations
+```graphql
+mutation createOrder{
+  createOrder(
+    input:{ 
+      products: [
+          {productId:"5fb1298205ddb9f2422951de", quantity: 1},
+          {productId:"5fb1299605ddb9f2422951df", quantity: 3}
+        ]
+      }
   ) {
     _id
-    firstName
-    lastName
-    address
   }
 }
-mutation login {
-  login(input: { email: "akrom@test.com", password: "akrom" }) {
-    token
-    userId
-  }
-}
-```
+``` 
