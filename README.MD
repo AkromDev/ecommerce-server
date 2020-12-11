@@ -103,10 +103,8 @@ mutation signup {
       lastName: "Tester2"
     }
   ) {
-    _id
-    firstName
-    lastName
-    address
+    success
+    message
   }
 }
 
