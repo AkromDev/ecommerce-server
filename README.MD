@@ -65,6 +65,10 @@ query myOrders{
       firstName
       lastName
     }
+    receiver{
+      name
+      zipcode
+    }
    productsOrdered{
     quantity
     product{
@@ -75,6 +79,7 @@ query myOrders{
   }
   }
 }
+
 query myOrder{
   myOrder(orderId:"5fbfd095c61bace0143912c0"){
     _id
@@ -180,14 +185,11 @@ mutation createProduct {
 ## User mutations
 ```graphql
 mutation createOrder{
-  createOrder(
-    input:{ 
-      products: [
-          {productId:"5fb1298205ddb9f2422951de", quantity: 1},
-          {productId:"5fb1299605ddb9f2422951df", quantity: 3}
-        ]
-      }
-  ) {
+  createOrder(input:
+    {
+      products: [{productId:"5fb1298205ddb9f2422951de", quantity: 1},{productId:"5fb1299605ddb9f2422951df", quantity: 3}],
+      receiver:{name:"Random", phone:"03203203", address: "Seoul", zipcode:"32323"}
+    }){
     _id
   }
 }
