@@ -70,11 +70,23 @@ module.exports = gql`
     userId: ID!
     user: User!
     productsOrdered: [ProductOrdered!]!
+    status: String
+    receiver: Receiver!
+    orderDate: String
+    cancellationDate: String
+    shipmentDate: String
+    deliveryDate: String
   }
   type ProductOrdered{
     quantity: Int!
     product: Product!
   }
+  type Receiver{
+    name: String!
+    phone: String!
+    address: String!
+    zipcode: String!
+  },
   # input types
   input CreateStoreInput {
     email: String!
@@ -112,10 +124,17 @@ module.exports = gql`
   }
   input CreateOrderInput {
     products: [OrderProduct!]!
+    receiver: ReceiverInput!
   }
 
   input OrderProduct {
     productId: ID!
     quantity: Int!
+  }
+  input ReceiverInput{
+    name: String!
+    phone: String!
+    address: String!
+    zipcode: String!
   }
 `;

@@ -61,10 +61,11 @@ module.exports = {
     },
     createOrder: (parent, { input }, { req }) => {
       checkAuth(req)
-      const { products = [] } = input;
+      const { products = [], receiver } = input;
       const order = new Order({
         userId: req.userId,
         products,
+        receiver
       });
       return order.save();
     },

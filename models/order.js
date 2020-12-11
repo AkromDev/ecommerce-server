@@ -16,8 +16,15 @@ const orderSchema = new Schema({
   ],
   status: {
     type: Schema.Types.String,
+    default: 'ORDERED'
   },
   orderDate: { type: Date, default: Date.now },
+  receiver:{
+    name: String,
+    phone: String,
+    address: String,
+    zipcode: String,
+  },
   cancellationDate: Date,
   shipmentDate: Date,
   deliveryDate: Date,
