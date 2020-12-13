@@ -10,8 +10,9 @@ const userController = require("./controllers/userController");
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
 
-const app = express();
 const port = process.env.PORT || 4000;
+const app = express();
+app.set("port", port);
 
 app.use((req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
@@ -57,7 +58,7 @@ mongoose
   })
   .then(() => {
     console.log("conneted to database");
-    app.listen(process.env.PORT || 4000, () => {
+    app.listen(port, () => {
       console.log("listening for requests on port " + port);
     });
   });
