@@ -1,6 +1,6 @@
-// if (process.env.NODE_ENV !== "production") {
-//   require("dotenv").config();
-// }
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
+}
 
 const express = require("express");
 const mongoose = require("mongoose");
@@ -57,7 +57,7 @@ mongoose
   })
   .then(() => {
     console.log("conneted to database");
-    app.listen(port, () => {
+    app.listen(process.env.PORT || 4000, () => {
       console.log("listening for requests on port " + port);
     });
   });
