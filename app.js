@@ -1,28 +1,30 @@
-if (process.env.NODE_ENV !== 'production') {
-  require('dotenv').config();
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config();
 }
 
-const express = require('express');
-const mongoose = require('mongoose');
-const { ApolloServer } = require('apollo-server-express');
-const auth = require('./middleware/auth');
-const userController = require('./controllers/userController');
-const typeDefs = require('./schema');
-const resolvers = require('./resolvers');
+const express = require("express");
+const mongoose = require("mongoose");
+const { ApolloServer } = require("apollo-server-express");
+const auth = require("./middleware/auth");
+const userController = require("./controllers/userController");
+const typeDefs = require("./schema");
+const resolvers = require("./resolvers");
 
 const app = express();
+const port = process.env.PORT || 4000;
+
 app.use((req, res, next) => {
-  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
-    'Access-Control-Allow-Methods',
-    'OPTIONS, GET, POST, PUT, PATCH, DELETE'
+    "Access-Control-Allow-Methods",
+    "OPTIONS, GET, POST, PUT, PATCH, DELETE"
   );
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
   next();
 });
 
 app.use(auth);
-app.get('/email-confirmation/:token', userController.confirmationPost);
+app.get("/email-confirmation/:token", userController.confirmationPost);
 
 const server = new ApolloServer({
   typeDefs,
@@ -31,11 +33,11 @@ const server = new ApolloServer({
     if (!err.originalError) {
       return err;
     }
-    if (err.message.startsWith('Database Error: ')) {
-      err.message = 'Internal server error';
+    if (err.message.startsWith("Database Error: ")) {
+      err.message = "Internal server error";
     }
     const data = err.originalError.data;
-    const message = err.message || 'Internal server error.';
+    const message = err.message || "Internal server error.";
     const code = err.originalError.code || 500;
     return { message: message, status: code, data: data };
   },
@@ -47,9 +49,14 @@ const server = new ApolloServer({
 
 server.applyMiddleware({ app });
 
-mongoose.connect(process.env.DB_URL).then(() => {
-  console.log('conneted to database');
-  app.listen(4000, () => {
-    console.log('listening for requests on port 4000');
+mongoose
+  .connect(process.env.DB_URL, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+  .then(() => {
+    console.log("conneted to database");
+    app.listen(port, () => {
+      console.log("listening for requests on port " + port);
+    });
   });
-});
