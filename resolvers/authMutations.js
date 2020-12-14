@@ -1,14 +1,14 @@
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const validator = require('validator');
-const crypto = require('crypto');
-const nodemailer = require('nodemailer');
-const sendgridTransport = require('nodemailer-sendgrid-transport');
-const handleRequest = require('../utils/handleRequest');
-const throwError = require('../utils/throwError');
-const Token = require('../models/token');
-const User = require('../models/user');
-const codes = require('../constants/httpCodes');
+const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
+const validator = require("validator");
+const crypto = require("crypto");
+const nodemailer = require("nodemailer");
+const sendgridTransport = require("nodemailer-sendgrid-transport");
+const handleRequest = require("../utils/handleRequest");
+const throwError = require("../utils/throwError");
+const Token = require("../models/token");
+const User = require("../models/user");
+const codes = require("../constants/httpCodes");
 
 const transporter = nodemailer.createTransport(
   sendgridTransport({
@@ -18,31 +18,31 @@ const transporter = nodemailer.createTransport(
   })
 );
 const generateCryptoToken = () => {
-  return crypto.randomBytes(16).toString('hex');
+  return crypto.randomBytes(16).toString("hex");
 };
 const authMutations = {
   signup: async function (_, { input }) {
     const { email, password, firstName, lastName, address, phone } = input;
     const errors = [];
     if (!validator.isEmail(email)) {
-      errors.push({ message: 'E-Mail is invalid.' });
+      errors.push({ message: "E-Mail is invalid." });
     }
     if (
       validator.isEmpty(password) ||
       !validator.isLength(password, { min: 5 })
     ) {
-      errors.push({ message: 'Password too short!' });
+      errors.push({ message: "Password too short!" });
     }
     if (validator.isEmpty(firstName)) {
-      errors.push({ message: 'First name is required!' });
+      errors.push({ message: "First name is required!" });
     }
     if (validator.isEmpty(lastName)) {
-      errors.push({ message: 'Last name is required!' });
+      errors.push({ message: "Last name is required!" });
     }
 
     if (errors.length > 0) {
       throwError({
-        message: 'Invalid input',
+        message: "Invalid input",
         code: codes.INVALID_INPUT,
         errors,
       });
@@ -50,7 +50,7 @@ const authMutations = {
     const existingUser = await User.findOne({ email });
     if (existingUser) {
       throwError({
-        message: 'User exists already!',
+        message: "User exists already!",
         code: codes.INVALID_INPUT,
       });
     }
@@ -61,17 +61,17 @@ const authMutations = {
     const [, emailError] = await handleRequest(
       transporter.sendMail({
         to: email,
-        from: 'akromsprinter@gmail.com',
-        subject: 'Account Verification Token',
+        from: "akromsprinter@gmail.com",
+        subject: "Account Verification Token",
         html: `
         <div>Please verify your account by clicking the link below</div>
-        <div><a href="http://localhost:4000/email-confirmation/${token}">Confirm email</a></div>
+        <div><a href="https://capstone-ecommerce-backend.herokuapp.com/email-confirmation/${token}">Confirm email</a></div>
         `,
       })
     );
     if (emailError) {
       throwError({
-        message: 'Error occured while sending an email',
+        message: "Error occured while sending an email",
         code: codes.INTERNAL_SERVER_ERROR,
       });
     }
@@ -83,7 +83,7 @@ const authMutations = {
       lastName,
       address,
       phone,
-      password: hashedPw
+      password: hashedPw,
     });
 
     const newToken = new Token({
@@ -103,20 +103,20 @@ const authMutations = {
     const { email } = input;
     if (!validator.isEmail(email)) {
       throwError({
-        message: 'Email is invalid',
+        message: "Email is invalid",
         code: codes.INVALID_INPUT,
       });
     }
     const user = await User.findOne({ email });
     if (!user) {
       throwError({
-        message: 'User is not found with that email',
+        message: "User is not found with that email",
         code: codes.INVALID_INPUT,
       });
     }
     if (user.isVerified) {
       throwError({
-        message: 'This account has already been verified. Please log in.',
+        message: "This account has already been verified. Please log in.",
         code: codes.BAD_REQUEST,
       });
     }
@@ -126,18 +126,18 @@ const authMutations = {
     const [, emailError] = await handleRequest(
       transporter.sendMail({
         to: email,
-        from: 'akromsprinter@gmail.com',
-        subject: 'Account Verification Token',
+        from: "akromsprinter@gmail.com",
+        subject: "Account Verification Token",
 
         html: `
         <div>Please verify your account by clicking the link below</div>
-        <div><a href="http://localhost:4000/email-confirmation/${token}">Confirm email</a></div>          `,
+        <div><a href="https://capstone-ecommerce-backend.herokuapp.com/email-confirmation/${token}">Confirm email</a></div>          `,
       })
     );
 
     if (emailError) {
       throwError({
-        message: 'Error occured while sending an email',
+        message: "Error occured while sending an email",
       });
     }
     var newToken = new Token({
@@ -157,7 +157,7 @@ const authMutations = {
     const [user, userError] = await handleRequest(User.findOne({ email }));
     if (!user) {
       throwError({
-        message: 'No account with that email found.',
+        message: "No account with that email found.",
         code: codes.INVALID_INPUT,
       });
     }
@@ -168,8 +168,8 @@ const authMutations = {
     const [, emailError] = await handleRequest(
       transporter.sendMail({
         to: email,
-        from: 'akromsprinter@gmail.com',
-        subject: 'Password reset request',
+        from: "akromsprinter@gmail.com",
+        subject: "Password reset request",
         html: `
           <p>You requested a password reset</p>
           <p>Here is 6-digit code: ${otp}.</p>
@@ -178,7 +178,7 @@ const authMutations = {
     );
     if (emailError) {
       throwError({
-        message: 'Error occured while sending an email',
+        message: "Error occured while sending an email",
       });
     }
 
@@ -201,7 +201,7 @@ const authMutations = {
     });
     if (!user) {
       throwError({
-        message: 'OTP code is invalid or expired',
+        message: "OTP code is invalid or expired",
       });
     }
     const hashedPassword = await bcrypt.hash(password, 12);
@@ -211,7 +211,7 @@ const authMutations = {
     user.save();
     return {
       success: true,
-      message: 'You have successfully reset your password.',
+      message: "You have successfully reset your password.",
     };
   },
   login: async function (_, { input }) {
@@ -219,20 +219,20 @@ const authMutations = {
     const user = await User.findOne({ email });
     if (!user) {
       throwError({
-        message: 'User not found.',
+        message: "User not found.",
         code: codes.INVALID_INPUT,
       });
     }
     if (!user.isVerified) {
       throwError({
-        message: 'Your account has not been verified.',
+        message: "Your account has not been verified.",
         code: codes.UNAUTHORIZED,
       });
     }
     const isEqual = await bcrypt.compare(password, user.password);
     if (!isEqual) {
       throwError({
-        message: 'Password is incorrect.',
+        message: "Password is incorrect.",
         code: codes.UNAUTHORIZED,
       });
     }
@@ -242,7 +242,7 @@ const authMutations = {
         email: user.email,
       },
       process.env.TOKEN_SECRET,
-      { expiresIn: '12h' }
+      { expiresIn: "12h" }
     );
     return { token: token, userId: user._id.toString() };
   },
