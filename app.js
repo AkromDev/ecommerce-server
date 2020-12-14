@@ -10,8 +10,8 @@ const userController = require("./controllers/userController");
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
 
-const port = process.env.PORT || 4000;
 const app = express();
+const port = process.env.PORT || 4000;
 app.set("port", port);
 
 app.use((req, res, next) => {
