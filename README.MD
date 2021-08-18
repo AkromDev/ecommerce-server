@@ -1,4 +1,30 @@
-# Public queries
+# Backend Server for [Ecommerce app](https://github.com/AkromDev/ecommerce-client)
+
+## Stack
+ - NodeJS / ExpressJS
+ - GraphQL / [Apollo Server](https://www.apollographql.com/docs/apollo-server/)
+ - MongoDB / Mongoose
+ - JWT authentication 
+ - Sendgrid for sending emails
+ - more ...
+
+## Features
+- Email sign up
+- Email confirmation
+- Email login
+- Add to cart
+- Create order
+- Store / Products / Orders queries
+- Profile query
+- Forget password (API only)
+- Change password (API only)
+- Create Store (API only)
+- Create Product (API only)
+- more ...
+
+# API examples
+
+## Public queries
 ```graphql
 query products {
   products {
@@ -44,7 +70,7 @@ query store {
 }
 
 ```
-# Protected queries
+## Protected queries
 
 ```graphql 
 
@@ -95,7 +121,7 @@ query myOrder{
 ```
 
 
-# Auth mutations
+## Auth mutations
 
 ```graphql
 
